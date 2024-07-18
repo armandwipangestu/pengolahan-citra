@@ -1,14 +1,15 @@
 #include <iostream>
 #include <cstdlib> // untuk malloc dan free
-#include <cstdio> // untuk fopen, fread, fwrite
-#include <windows.h> // untuk fungsi windows seperti HDC, HWND, dll.
+#include <cstdio>  // untuk fopen, fread, fwrite
+#include <windows.h> // untuk fungsi Windows seperti HDC, HWND, dll.
 
 using namespace std;
 
-#define N 500 // maksimum tinggi citra
-#define M 100 // maksimum lebar citra
+#define MAX_N 500       // Maksimum tinggi citra
+#define MAX_M 100       // Maksimum lebar citra
 typedef unsigned char **citra;
 
+// Fungsi alokasi memori untuk citra
 citra alokasi(int N, int M) {
     citra f;
     int i;
@@ -29,7 +30,6 @@ citra alokasi(int N, int M) {
             return NULL;
         }
     }
-
     return f;
 }
 
@@ -55,7 +55,7 @@ void *xalloc(unsigned ukuran) {
 void setpixel(unsigned char r, unsigned char g, unsigned char b, int i, int j) {
     // Ini adalah fungsi placeholder, implementasi tergantung platform grafik
     // Misalnya, menggunakan OpenCV:
-    // cv::Mat img = cv::Mat::zeros(N, M, CV_8UC3);
+    // cv::Mat img = cv::Mat::zeros(MAX_N, MAX_M, CV_8UC3);
     // img.at<cv::Vec3b>(i, j) = cv::Vec3b(b, g, r);
     // cv::imshow("Image", img);
 }
@@ -69,6 +69,7 @@ void tampilkan_citra(citra r, citra g, citra b, int N, int M) {
     }
 }
 
+// Fungsi untuk menampilkan citra di lingkungan Windows
 void WIN_tampilkan_citra(citra r, citra g, citra b, int N, int M) {
     HDC MemDC;
     HBITMAP mbitmap;
@@ -139,7 +140,7 @@ void tulis_citra_ke_arsip(const char nama_arsip[], citra f, int N, int M) {
 
 int main() {
     citra r, g, b;
-    int N = 500, M = 100;
+    int N = MAX_N, M = MAX_M;
 
     r = alokasi(N, M);
     g = alokasi(N, M);
