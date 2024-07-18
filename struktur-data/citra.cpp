@@ -41,34 +41,6 @@ void dealokasi(citra f, int N) {
     free(f);
 }
 
-// Fungsi untuk mengalokasikan memori dengan pemeriksaan kesalahan
-void *xalloc(unsigned ukuran) {
-    void *p = malloc(ukuran);
-    if (p == NULL) {
-        printf("Memori tidak cukup untuk alokasi matriks");
-        exit(0);
-    }
-    return p;
-}
-
-// Fungsi untuk menampilkan pixel (simulasi, tidak standar C)
-void setpixel(unsigned char r, unsigned char g, unsigned char b, int i, int j) {
-    // Ini adalah fungsi placeholder, implementasi tergantung platform grafik
-    // Misalnya, menggunakan OpenCV:
-    // cv::Mat img = cv::Mat::zeros(MAX_N, MAX_M, CV_8UC3);
-    // img.at<cv::Vec3b>(i, j) = cv::Vec3b(b, g, r);
-    // cv::imshow("Image", img);
-}
-
-// Fungsi untuk menampilkan citra
-void tampilkan_citra(citra r, citra g, citra b, int N, int M) {
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < M; j++) {
-            setpixel(r[i][j], g[i][j], b[i][j], i, j);
-        }
-    }
-}
-
 // Fungsi untuk menampilkan citra di lingkungan Windows
 void WIN_tampilkan_citra(citra r, citra g, citra b, int N, int M) {
     HDC MemDC;
@@ -77,7 +49,7 @@ void WIN_tampilkan_citra(citra r, citra g, citra b, int N, int M) {
     COLORREF TableWarna[256];
     int i, j, palet;
 
-    hwnd = GetActiveWindow();
+    hwnd = GetConsoleWindow();  // GetActiveWindow() has been replaced with GetConsoleWindow()
     MemDC = CreateCompatibleDC(GetDC(hwnd));
     mbitmap = CreateCompatibleBitmap(GetDC(hwnd), M, N);
     SelectObject(MemDC, mbitmap);
@@ -94,6 +66,9 @@ void WIN_tampilkan_citra(citra r, citra g, citra b, int N, int M) {
     }
 
     BitBlt(GetDC(hwnd), 0, 0, M, N, MemDC, 0, 0, SRCCOPY);
+    
+    // Tambahkan Sleep agar window tetap terbuka
+    Sleep(5000);
 }
 
 // Fungsi untuk membaca citra dari file
@@ -151,8 +126,17 @@ int main() {
         return -1;
     }
 
-    // Contoh penggunaan
-    tampilkan_citra(r, g, b, N, M);
+    // Mengisi citra dengan warna acak untuk demonstrasi
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            r[i][j] = rand() % 256;
+            g[i][j] = rand() % 256;
+            b[i][j] = rand() % 256;
+        }
+    }
+
+    // Tampilkan citra menggunakan fungsi Windows
+    WIN_tampilkan_citra(r, g, b, N, M);
 
     dealokasi(r, N);
     dealokasi(g, N);
