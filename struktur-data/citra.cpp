@@ -6,7 +6,7 @@
 using namespace std;
 
 #define MAX_N 500       // Maksimum tinggi citra
-#define MAX_M 100       // Maksimum lebar citra
+#define MAX_M 500       // Maksimum lebar citra
 typedef unsigned char **citra; // Tipe data citra sebagai matriks 2D dari unsigned char
 
 // Fungsi alokasi memori untuk citra
@@ -43,58 +43,47 @@ void dealokasi(citra f, int N) {
     free(f); // Bebaskan memori utama
 }
 
-// Fungsi untuk menampilkan pixel (simulasi, tidak standar C)
-void setpixel(unsigned char r, unsigned char g, unsigned char b, int i, int j) {
-    // Ini adalah fungsi placeholder, implementasi tergantung platform grafik
-    // Misalnya, menggunakan OpenCV:
-    // cv::Mat img = cv::Mat::zeros(MAX_N, MAX_M, CV_8UC3);
-    // img.at<cv::Vec3b>(i, j) = cv::Vec3b(b, g, r);
-    // cv::imshow("Image", img);
+// Fungsi untuk menampilkan pixel
+void setpixel(HDC MemDC, unsigned char r, unsigned char g, unsigned char b, int x, int y) {
+    COLORREF color = RGB(r, g, b); // Membuat warna dari nilai r, g, b
+    SetPixelV(MemDC, x, y, color); // Set pixel pada posisi x, y dengan warna
 }
 
 // Fungsi untuk menampilkan citra
-void tampilkan_citra(citra r, citra g, citra b, int N, int M) {
+void tampilkan_citra(HDC MemDC, citra r, citra g, citra b, int N, int M) {
     for (int i = 0; i < N; i++) { // Iterasi baris
         for (int j = 0; j < M; j++) { // Iterasi kolom
-            setpixel(r[i][j], g[i][j], b[i][j], i, j); // Tampilkan pixel
+            setpixel(MemDC, r[i][j], g[i][j], b[i][j], j, i); // Tampilkan pixel
         }
     }
 }
 
 // Fungsi untuk menampilkan citra di lingkungan Windows
 void WIN_tampilkan_citra(citra r, citra g, citra b, int N, int M) {
-    HDC MemDC; // Deklarasi perangkat kontekstual memori
-    HBITMAP mbitmap; // Deklarasi bitmap
-    HWND hwnd; // Deklarasi handle untuk window
-    COLORREF TableWarna[256]; // Deklarasi tabel warna
-    int i, j, palet;
+    HWND hwnd = GetConsoleWindow(); // Ambil handle untuk jendela konsol
+    HDC hdc = GetDC(hwnd); // Ambil device context dari jendela konsol
+    HDC MemDC = CreateCompatibleDC(hdc); // Buat device context yang kompatibel
+    HBITMAP hbmMem = CreateCompatibleBitmap(hdc, M, N); // Buat bitmap yang kompatibel
 
-    hwnd = GetConsoleWindow(); // Ambil handle untuk jendela konsol
-    MemDC = CreateCompatibleDC(GetDC(hwnd)); // Buat perangkat kontekstual yang kompatibel
-    mbitmap = CreateCompatibleBitmap(GetDC(hwnd), M, N); // Buat bitmap yang kompatibel
-    SelectObject(MemDC, mbitmap); // Pilih bitmap ke dalam perangkat kontekstuak
+    SelectObject(MemDC, hbmMem); // Pilih bitmap ke dalam device context
 
-    for (i = 0; i < 256; i++) {
-        TableWarna[i] = RGB(i, i, i); // Inisialisasi tabel warna grayscale
-    }
+    tampilkan_citra(MemDC, r, g, b, N, M); // Tampilkan citra ke device context
 
-    for (i = 0; i < N; i++) { // Iterasi baris
-        for (j = 0; j < M; j++) { // Iterasi kolom
-            palet = RGB(r[i][j], g[i][j], b[i][j]); // Dapatkan nilai warna dari citra
-            SetPixelV(MemDC, j, i, palet); // Set pixel di perangkat kontekstuak
-        }
-    }
-
-    BitBlt(GetDC(hwnd), 0, 0, M, N, MemDC, 0, 0, SRCCOPY); // Salin dari perangkat kontekstuak ke layar
+    // Salin dari device context ke layar
+    BitBlt(hdc, 0, 0, M, N, MemDC, 0, 0, SRCCOPY);
 
     Sleep(5000); // Tahan jendela selama 5 detik
+
+    DeleteObject(hbmMem); // Hapus bitmap
+    DeleteDC(MemDC); // Hapus device context
+    ReleaseDC(hwnd, hdc); // Lepaskan device context
 }
 
 // Fungsi untuk membaca citra dari file
 void baca_citra_dari_arsip(const char nama_arsip[], citra &f, int &N, int &M) {
     FILE *fp = fopen(nama_arsip, "rb"); // Buka file untuk membaca biner
     if (fp == NULL) { // Jika file tidak ada
-        printf("Arsip tidak ada");
+        printf("Arsip tidak ada\n");
         exit(0);
     }
 
@@ -103,7 +92,7 @@ void baca_citra_dari_arsip(const char nama_arsip[], citra &f, int &N, int &M) {
 
     f = alokasi(N, M); // Alokasikan memori untuk citra
     if (f == NULL) { // Jika alokasi gagal
-        printf("Memori tidak cukup");
+        printf("Memori tidak cukup\n");
         exit(0);
     }
 
@@ -118,7 +107,7 @@ void baca_citra_dari_arsip(const char nama_arsip[], citra &f, int &N, int &M) {
 void tulis_citra_ke_arsip(const char nama_arsip[], citra f, int N, int M) {
     FILE *fp = fopen(nama_arsip, "wb"); // Buka file untuk menulis biner
     if (fp == NULL) { // Jika file tidak dapat dibuat
-        printf("Arsip tidak dapat dibuat");
+        printf("Arsip tidak dapat dibuat\n");
         exit(0);
     }
 
@@ -135,32 +124,20 @@ void tulis_citra_ke_arsip(const char nama_arsip[], citra f, int N, int M) {
 // Fungsi utama
 int main() {
     citra r, g, b; // Deklarasi tiga citra untuk warna merah, hijau, dan biru
-    int N = MAX_N, M = MAX_M; // Inisialisasi ukuran citra
+    int N, M; // Deklarasi ukuran citra
 
-    r = alokasi(N, M); // Alokasikan memori untuk citra merah
-    g = alokasi(N, M); // Alokasikan memori untuk citra hijau
-    b = alokasi(N, M); // Alokasikan memori untuk citra biru
-
-    if (r == NULL || g == NULL || b == NULL) { // Jika alokasi gagal
-        printf("Gagal mengalokasikan memori untuk citra");
-        return -1;
-    }
-
-    // Mengisi citra dengan warna acak untuk demonstrasi
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < M; j++) {
-            r[i][j] = rand() % 256; // Isi citra merah dengan nilai acak
-            g[i][j] = rand() % 256; // Isi citra hijau dengan nilai acak
-            b[i][j] = rand() % 256; // Isi citra biru dengan nilai acak
-        }
-    }
+    // Membaca citra dari file
+    baca_citra_dari_arsip("gambar_r.dat", r, N, M);
+    baca_citra_dari_arsip("gambar_g.dat", g, N, M);
+    baca_citra_dari_arsip("gambar_b.dat", b, N, M);
 
     // Tampilkan citra menggunakan fungsi Windows
     WIN_tampilkan_citra(r, g, b, N, M);
 
-    dealokasi(r, N); // Dealokasi memori citra merah
-    dealokasi(g, N); // Dealokasi memori citra hijau
-    dealokasi(b, N); // Dealokasi memori citra biru
+    // Dealokasi memori citra
+    dealokasi(r, N);
+    dealokasi(g, N);
+    dealokasi(b, N);
 
     return 0; // Selesai
 }
