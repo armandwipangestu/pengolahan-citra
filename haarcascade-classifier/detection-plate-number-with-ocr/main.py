@@ -49,5 +49,4 @@ while (True):
         cv2.imshow("Hasil", frame)
         cv2.waitKey(500)
         count += 1
-
-readImage()
+        readImage()

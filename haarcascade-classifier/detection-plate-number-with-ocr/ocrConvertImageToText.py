@@ -21,7 +21,7 @@ def readImage():
         # gaus = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 115, 2)
 
         reader = easyocr.Reader(["en"])
-        result = reader.readText(gray)
+        result = reader.readtext(gray)
 
         for (bbox, text, prob) in result:
             print(count, "Plat Nomor:", text, "| " "Pesentase:", prob)
