@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Plate Detection</title>
+  </head>
+  <body>
+    <h1>Web Plate Detection</h1>
+
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+
+    <p id="text"></p>
+
+    <script>
+      const video = document.querySelector("#video");
+      const canvas = document.querySelector("#canvas");
+      const context = canvas.getContext("2d");
+      const textElement = document.querySelector("#text");
+      let websocket = new WebSocket(`ws://${window.location.host}/ws/detect/`);
+
+      websocket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        const image = new Image();
+        image.src = data.image;
+        image.onload = () => {
+          context.drawImage(image, 0, 0);
+          textElement.innerText = `Detected Plate Text: ${data.text}`;
+        };
+      };
+
+      const sendFrame = () => {
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataURI = canvas.toDataURL("image/jpeg");
+        websocket.send(
+          JSON.stringify({
+            image: dataURI,
+          })
+        );
+      };
+
+      const startVideo = () => {
+        navigator.mediaDevices
+          .getUserMedia({
+            video: true,
+          })
+          .then((stream) => {
+            video.srcObject = stream;
+            video.play();
+          })
+          .catch((err) => {
+            console.error(`Error accessing the camera: ${err}`);
+          });
+      };
+
+      startVideo();
+      setInterval(sendFrame, 1000);
+    </script>
+  </body>
+</html>
