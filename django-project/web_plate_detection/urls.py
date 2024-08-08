@@ -20,5 +20,8 @@ from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.index, name='index'),
+    # path('', views.index, name='index'),
+    path('detect/', views.detect, name='detect'),
+    # path('home/', views.Home, name="app1fun"),
+    path('video_feed', views.video_feed, name='video_feed'),
 ]

@@ -18,6 +18,7 @@ minArea = 500
 
 while (True):
     ret, frame = cam.read()
+    # frame = cv2.imread('result/test2.jpeg')
     if not ret:
         print("Failed to grab frame")
         break
