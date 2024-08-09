@@ -37,6 +37,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'tailwind',
+    'theme',
+    'django_browser_reload',
+]
+
+TAILWIND_APP_NAME = 'theme'
+
+INTERNAL_IPS = [
+    "*",
+    "0.0.0.0",
+    "192.168.188.125",
+    "192.168.188.147",
+    "localhost",
+    "127.0.0.1",
 ]
 
 MIDDLEWARE = [
@@ -47,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_browser_reload.middleware.BrowserReloadMiddleware',
 ]
 
 ROOT_URLCONF = 'streamapp.urls'
@@ -54,7 +69,8 @@ ROOT_URLCONF = 'streamapp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'streamapp/templates'],  # Tambahkan direktori template Anda di sini
+        # 'DIRS': [BASE_DIR / 'streamapp/templates'],  # Tambahkan direktori template Anda di sini
+        'DIRS': [BASE_DIR / 'streamapp'],  # Tambahkan direktori template Anda di sini
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

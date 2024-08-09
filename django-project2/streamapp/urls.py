@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
@@ -24,5 +24,6 @@ urlpatterns = [
     path('video_feed', views.video_feed, name='video_feed'),
     path('video_plate_feed', views.video_plate_feed, name='video_plate_feed'),
     path('capture_roi', views.capture_roi, name='capture_roi'),
+    path('__reload__/', include("django_browser_reload.urls"))
     # path('webcam_feed', views.webcam_feed, name='webcam_feed')
 ]

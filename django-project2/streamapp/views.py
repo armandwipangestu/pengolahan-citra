@@ -12,7 +12,7 @@ from django.conf import settings
 last_frame_with_roi = None
 
 def index(request):
-    return render(request, 'home.html')
+    return render(request, 'templates/home.html')
 
 def gen(camera):
     while True:
