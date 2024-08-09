@@ -8,6 +8,9 @@ from django.conf import settings
 haarcascadeFrontalFacePath = "haarcascade_frontalface_alt2.xml"
 face_detection_videocam = cv2.CascadeClassifier(cv2.data.haarcascades + haarcascadeFrontalFacePath)
 face_detection_webcam = cv2.CascadeClassifier(cv2.data.haarcascades + haarcascadeFrontalFacePath)
+plate_detection = cv2.CascadeClassifier(os.path.join(settings.BASE_DIR, 'data/haarcascade_russian_plate_number.xml'))
+
+frame_with_roi = None
 
 class VideoCamera(object):
     def __init__(self):
@@ -28,6 +31,40 @@ class VideoCamera(object):
         frame_flip = cv2.flip(image, 1)
         ret, jpeg = cv2.imencode('.jpg', frame_flip)
         return jpeg.tobytes()
+    
+    def get_frame_plate(self):
+        global frame_with_roi
+        # self.video.set(3, 640)
+        # self.video.set(4, 480)
+        # self.video.set(10, 150)
+
+        count = 1
+        minArea = 500
+
+        success, frame = self.video.read()
+        if not success:
+            print('Failed to grab frame')
+            return False
+
+        frameGray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        numberPlates = plate_detection.detectMultiScale(frameGray, scaleFactor=1.1, minNeighbors=4)
+
+        for (x, w, y, h) in numberPlates:
+            area = w * h
+            if area > minArea:
+                frame_with_roi = frame[y:y + h, x:x + w]
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                cv2.putText(frame, 'NumberPlate', (x, y - 5), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
+        
+        # frame_flip = cv2.flip(frame, 1)
+        ret, jpeg_frame = cv2.imencode('.jpg', frame)
+
+        if frame_with_roi is not None:
+            ret, jpeg_roi = cv2.imencode('.jpg', frame_with_roi)
+        else:
+            jpeg_roi = None
+
+        return jpeg_frame.tobytes(), jpeg_roi.tobytes() if jpeg_roi is not None else None
 
 class IPWebCam(object):
     def __init__(self):

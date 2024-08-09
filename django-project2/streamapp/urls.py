@@ -22,5 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name="index"),
     path('video_feed', views.video_feed, name='video_feed'),
-    path('webcam_feed', views.webcam_feed, name='webcam_feed')
+    path('video_plate_feed', views.video_plate_feed, name='video_plate_feed'),
+    path('capture_roi', views.capture_roi, name='capture_roi'),
+    # path('webcam_feed', views.webcam_feed, name='webcam_feed')
 ]
