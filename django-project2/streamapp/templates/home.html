@@ -1,39 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Stream App</title>
-  </head>
-  <body>
-    <h1>Video Live Stream</h1>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Deteksi Plat Nomer</title>
+    </head>
+    <body>
+        {% comment %}
+        <img src="{% url 'video_feed' %}" alt="" />
+        <img src="{% url 'webcam_feed' %}" alt="" />
+        {% endcomment %}
+        <h2>Live Video Stream</h2>
+        <img src="{% url 'video_plate_feed' %}" alt="Live Stream" />
 
-    {% comment %}
-    <img src="{% url 'video_feed' %}" alt="" />
-    <img src="{% url 'webcam_feed' %}" alt="" />
-    {% endcomment %}
-    <div>
-      <h2>Live Video Stream</h2>
-      <img src="{% url 'video_plate_feed' %}" alt="Live Stream" />
-    </div>
+        <button onclick="captureROI()">Capture ROI</button>
 
-    <button onclick="captureROI()">Capture ROI</button>
+        <h2>Region of Interest</h2>
+        <img id="roiImage" src="" alt="ROI will appear here" />
 
-    <div id="roi-container">
-      <h2>Detected Number Plate (ROI)</h2>
-      <img id="roiImage" src="" alt="ROI will appear here" />
-    </div>
-
-    <script>
-      function captureROI() {
-        fetch("{% url 'capture_roi' %}")
-          .then((response) => response.blob())
-          .then((blob) => {
-            var url = URL.createObjectURL(blob);
-            document.getElementById("roiImage").src = url;
-          })
-          .catch((error) => console.error("Error capturing ROI:", error));
-      }
-    </script>
-  </body>
+        <script>
+            function captureROI() {
+                fetch("{% url 'capture_roi' %}")
+                    .then((response) => response.blob())
+                    .then((blob) => {
+                        var url = URL.createObjectURL(blob);
+                        document.getElementById("roiImage").src = url;
+                    })
+                    .catch((error) =>
+                        console.error("Error capturing ROI:", error)
+                    );
+            }
+        </script>
+    </body>
 </html>
