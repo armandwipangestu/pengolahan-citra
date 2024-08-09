@@ -41,6 +41,7 @@ module.exports = {
          */
         // '../../**/*.py'
     ],
+    darkMode: "class",
     theme: {
         container: {
             center: true,
@@ -53,7 +54,7 @@ module.exports = {
                     "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
             },
             colors: {
-                primary: "#31B5D5",
+                primary: "#111827",
                 secondary: "#64748b",
                 dark: "#010613",
                 white: "#ffffff",
