@@ -3,6 +3,7 @@ import cv2
 import urllib
 import requests
 import numpy as np
+import easyocr
 from django.conf import settings
 
 haarcascadeFrontalFacePath = "haarcascade_frontalface_alt2.xml"
@@ -15,6 +16,7 @@ frame_with_roi = None
 class VideoCamera(object):
     def __init__(self):
         self.video = cv2.VideoCapture(0)
+        self.reader = easyocr.Reader(["en"])
 
     def __del__(self):
         self.video.release()

@@ -18,8 +18,11 @@
         <h2>Region of Interest</h2>
         <img id="roiImage" src="" alt="ROI will appear here" />
 
+        <h2>OCR Result</h2>
+        <p id="ocrText">OCR result will appear here</p>
+
         <script>
-            function captureROI() {
+            {% comment %} function captureROI() {
                 fetch("{% url 'capture_roi' %}")
                     .then((response) => response.blob())
                     .then((blob) => {
@@ -29,6 +32,19 @@
                     .catch((error) =>
                         console.error("Error capturing ROI:", error)
                     );
+            } {% endcomment %}
+            function captureROI() {
+            fetch("{% url 'capture_roi' %}")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.image) {
+                        document.getElementById("roiImage").src = data.image;
+                        document.getElementById("ocrText").textContent = data.text;
+                    } else if (data.error) {
+                        document.getElementById("ocrText").textContent = data.error;
+                    }
+                })
+                .catch(error => console.error("Error capturing ROI:", error));
             }
         </script>
     </body>
